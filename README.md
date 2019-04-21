@@ -66,30 +66,36 @@ Com todos os conceitos necessários sendo explicados acima, vamos exemplificar o
 
 Em primeiro lugar, vamos criar um App Service. A criação é padrão, preenchendo o nome, grupo de recurso, região, e escolhendo o plano de serviço:
 
-[App Service creation](/resources/images/app-service-creation.png?raw=true)
+![App Service creation](/resources/images/app-service-creation.png?raw=true)
 
 Após criar, selecione a opção *Identity*:
 
-[App Service identity selection](/resources/images/app-service-select-identity-blade.png?raw=true)
+![App Service identity selection](/resources/images/app-service-select-identity-blade.png?raw=true)
 
 Nessa tela, altere a opção *Status* para *On* na guia *System assigned*, e confirme as alterações:
+
 ![App Service turning managed identity on](/resources/images/app-service-create-managed-identity.png?raw=true)
 
 Ao final, o identificador do *Service Principal* criado para o App Service é exibido:
+
 ![App Service managed identity created](/resources/images/app-service-managed-identity-created.png?raw=true)
 
 Depois de criar o App Service e sua Managed Identity, vamos para a criação do Key Vault.
 
 Na tela de criação do Key Vault, informe um nome, um grupo de recurso, uma região e o pricing tier, e clique em *Access policies*:
+
 ![Key Vault creation](/resources/images/key-vault-creation.png?raw=true)
 
 Na tela de políticas de acesso, você verá que o usuário criando o Key Vault já tem acesso ao mesmo. Clique em *Add New*:
+
 ![Key Vault access policies](/resources/images/key-vault-add-access-policy.png?raw=true)
 
 Clique em *Select principal*, pesquise o nome do App Service criado, clique no nome do App Service informado e clique em Select:
+
 ![Key Vault new access policy](/resources/images/key-vault-select-managed-identity-principal.png?raw=true)
 
 Informe a política de *Get* tanto para *Key permissions* quanto para *Secret permissions* e clique em Ok:
+
 ![Key Vault new access policy permissions](/resources/images/key-vault-permissions-selection.png?raw=true)
 
 Aguarde a criação do Key Vault. Quando terminar, o App Service já terá acesso ao Key Vault. Caso a aplicação sendo desenvolvida usa .NET Core com Visual Studio, pule para a seção [Implementar o acesso no código](#implementar-o-acesso-no-código) e escolha a opção correta. Caso contrário, siga na próxima seção.
@@ -99,17 +105,21 @@ Aguarde a criação do Key Vault. Quando terminar, o App Service já terá acess
 Se a aplicação sendo desenvolvida não utilizar .NET Core, ou utilizar mas não usar Visual Studio, então deve ser configurado um *Service Principal* para que o desenvolvimento local possa acessar o Key Vault.
 
 Nesse caso, primeiro crie uma *App Registration* (o mesmo que um Service Principal), informando um nome e uma url de redirecionamento (não se preocupe com essa url, pode ser uma url local, como no print abaixo):
+
 ![Service Principal creation](/resources/images/service-principal-creation.png?raw=true)
 
 Após a criação, clique em *Settings*, e em *Keys* para a criação do *Client Secret* que deverá ser utilizado no desenvolvimento local:
+
 ![Service Principal add key](/resources/images/service-principal-add-secret.png?raw=true)
 
 Informe uma descrição e uma data de expiração para essa chave de acesso e clique em Salvar (lembre-se de salvar essa chave de acesso, pois ela não será exibida novamente):
+
 ![Service Principal key created](/resources/images/service-principal-client-secret-creation.png?raw=true)
 
 Por fim, navegue até o Key Vault, selecione *Access policies* e adicione esse *Service Principal* da mesma forma que o *App Service* foi adicionado na seção anterior.
 
 Ao final, o Key Vault será acessível pelo seu criado, pelo *App Service* e pelo *Service Principal*:
+
 ![Key Vault completed](/resources/images/key-vault-final-access-policies.png?raw=true)
 
 Toda a configuração necessária está finalizada. É hora de implementar o acesso no código.
