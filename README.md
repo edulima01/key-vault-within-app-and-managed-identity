@@ -94,7 +94,7 @@ Clique em *Select principal*, pesquise o nome do App Service criado, clique no n
 
 ![Key Vault new access policy](/resources/images/key-vault-select-managed-identity-principal.png?raw=true)
 
-Informe a política de *Get* tanto para *Key permissions* quanto para *Secret permissions* e clique em Ok:
+Informe a política de *Get* para *Secret permissions* e clique em Ok:
 
 ![Key Vault new access policy permissions](/resources/images/key-vault-permissions-selection.png?raw=true)
 
