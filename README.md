@@ -65,10 +65,12 @@ Com todos os conceitos necessários sendo explicados acima, vamos exemplificar o
 ### Criar um Key Vault e um App Service, e dar acesso ao Key Vault para o App Service
 
 Em primeiro lugar, vamos criar um App Service. A criação é padrão, preenchendo o nome, grupo de recurso, região, e escolhendo o plano de serviço:
-![App Service creation](/resources/images/app-service-creation.png?raw=true)
+
+[App Service creation](/resources/images/app-service-creation.png?raw=true)
 
 Após criar, selecione a opção *Identity*:
-![App Service identity selection](/resources/images/app-service-select-identity-blade.png?raw=true)
+
+[App Service identity selection](/resources/images/app-service-select-identity-blade.png?raw=true)
 
 Nessa tela, altere a opção *Status* para *On* na guia *System assigned*, e confirme as alterações:
 ![App Service turning managed identity on](/resources/images/app-service-create-managed-identity.png?raw=true)
