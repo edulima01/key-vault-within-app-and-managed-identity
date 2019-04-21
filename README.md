@@ -130,3 +130,7 @@ Para continuar esse tutorial, siga o arquivo README.md de cada um dos caminhos p
 - [Desenvolvimento .NET Core com Visual Studio](/managed-identity-using-dotnet-and-visual-studio)
 - [Desenvolvimento .NET Core com Visual Studio Code](/managed-identity-using-dotnet-and-vs-code)
 - [Desenvolvimento Java](/service-principal-using-java)
+
+## Referências
+
+[Read Azure key vault secret through MSI in Java](https://stackoverflow.com/questions/51750846/read-azure-key-vault-secret-through-msi-in-java)
