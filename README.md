@@ -94,7 +94,7 @@ Clique em *Select principal*, pesquise o nome do App Service criado, clique no n
 
 ![Key Vault new access policy](/resources/images/key-vault-select-managed-identity-principal.png?raw=true)
 
-Informe a política de *Get* para *Secret permissions* e clique em Ok:
+Informe as políticas de *Get* e de *List* para *Secret permissions* e clique em Ok:
 
 ![Key Vault new access policy permissions](/resources/images/key-vault-permissions-selection.png?raw=true)
 
@@ -118,7 +118,7 @@ Informe uma descrição e uma data de expiração para essa chave de acesso e cl
 
 Por fim, navegue até o Key Vault, selecione *Access policies* e adicione esse *Service Principal* da mesma forma que o *App Service* foi adicionado na seção anterior.
 
-Ao final, o Key Vault será acessível pelo seu criado, pelo *App Service* e pelo *Service Principal*:
+Ao final, o Key Vault será acessível pelo seu criador, pelo *App Service* e pelo *Service Principal*:
 
 ![Key Vault completed](/resources/images/key-vault-final-access-policies.png?raw=true)
 
@@ -148,7 +148,7 @@ public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
 
 Vamos então dizer ao WebHostBuilder como obter configurações do Key Vault. Para isso, vamos adicionar o método *ConfigureAppConfiguration* e obter a url do Key Vault que foi criado nos passos anteriores:
 
-![Key Vault url](/resources/iamges/key-vault-url.png?raw=true)
+![Key Vault url](/resources/images/key-vault-url.png?raw=true)
 
 ```C#
 public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
@@ -251,7 +251,7 @@ Este código produz o resultado:
 
 ![Browser user name before key vault](/resources/images/browser-before-key-vault.png?raw=true)
 
-Vamos agora mover essa string de conexão para o Key Vault. Acesse o Key Vault, e escolha Secrets e depois Generate/Import:
+Vamos agora mover essa string de conexão para o Key Vault. Acesse o Key Vault, escolha Secrets e depois Generate/Import:
 
 ![Key Vault generate secret](/resources/images/key-vault-generate-secret.png?raw=true)
 
@@ -323,7 +323,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-Alterar nosso Controller para receber uma instância da classe *Secrets* ao invés de *IConfiguration*:
+E por último alteramos o Controller para receber uma instância da classe *Secrets* ao invés de *IConfiguration*:
 ```C#
 [Route("api/[controller]")]
 [ApiController]
