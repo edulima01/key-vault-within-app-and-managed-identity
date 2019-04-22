@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/dotnet-and-visual-studio/.vs
+/dotnet-and-visual-studio/bin
+/dotnet-and-visual-studio/obj
+/dotnet-and-visual-studio/Properties/PublishProfiles/app-using-key-vault - Web Deploy.pubxml.user
+/dotnet-and-visual-studio/dotnet-and-visual-studio.csproj.user
