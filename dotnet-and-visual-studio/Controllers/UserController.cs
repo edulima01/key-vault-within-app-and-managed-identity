@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using dotnet_and_visual_studio.Models;
+using AppUsingKeyVault.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
-namespace dotnet_and_visual_studio.Controllers
+namespace AppUsingKeyVault.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

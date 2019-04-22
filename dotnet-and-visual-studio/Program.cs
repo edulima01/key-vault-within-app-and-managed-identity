@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.KeyVault;
 
-namespace dotnet_and_visual_studio
+namespace AppUsingKeyVault
 {
     public class Program
     {
