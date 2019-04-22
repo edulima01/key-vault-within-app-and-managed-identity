@@ -55,14 +55,14 @@ A solução para o ambiente de desenvolvimento vai depender das tecnologias e am
 2. Agora, caso o desenvolvimento seja feito com .NET Core mas sem o Visual Studio, ou então o desenvolvimento seja feito em Java, então a solução é diferente: é necessário criar um Service Principal com acesso ao ambiente de desenvolvimento, e, quando em ambiente local, autenticar utilizando este Service Principal, ao invés da autenticação utilizando Managed Identity.
    - Apesar da técnica ser a mesma, o desenvolvimento da solução número 2 acima é diferente caso esteja utilizando .NET Core com Visual Studio Code, ou se está sendo desenvolvido utilizando Java. Então, no final, são **três** os caminhos a serem percorridos para desenvolver uma aplicação que utiliza a Azure Key Vault como registro das informações sensíveis da aplicação.
 
-## Tutorial para implementação
+# Tutorial para implementação
 
 Com todos os conceitos necessários sendo explicados acima, vamos exemplificar os passos que foram definidos:
 1. [Criar um Key Vault e um App Service, e dar acesso ao Key Vault para o App Service](#criar-um-key-vault-e-um-app-service-e-dar-acesso-ao-key-vault-para-o-app-service)
 2. [Criar um Service Principal (caso o desenvolvimento não seja feito com .NET Core, ou seja .NET Core sem Visual Studio)](#criar-um-service-principal-caso-o-desenvolvimento-não-seja-feito-com-net-core-ou-seja-net-core-sem-visual-studio)
 3. [Implementar o acesso no código](#implementar-o-acesso-no-código)
 
-### Criar um Key Vault e um App Service, e dar acesso ao Key Vault para o App Service
+## Criar um Key Vault e um App Service, e dar acesso ao Key Vault para o App Service
 
 Em primeiro lugar, vamos criar um App Service. A criação é padrão, preenchendo o nome, grupo de recurso, região, e escolhendo o plano de serviço:
 
@@ -98,9 +98,9 @@ Informe a política de *Get* para *Secret permissions* e clique em Ok:
 
 ![Key Vault new access policy permissions](/resources/images/key-vault-permissions-selection.png?raw=true)
 
-Aguarde a criação do Key Vault. Quando terminar, o App Service já terá acesso ao Key Vault. Caso a aplicação sendo desenvolvida usa .NET Core com Visual Studio, pule para a seção [Implementar o acesso no código](#implementar-o-acesso-no-código) e escolha a opção correta. Caso contrário, siga na próxima seção.
+Aguarde a criação do Key Vault. Quando terminar, o App Service já terá acesso ao Key Vault. Caso a aplicação sendo desenvolvida usa .NET Core com Visual Studio, pule para a seção [Implementar o acesso no código](#implementar-o-acesso-no-código). Caso contrário, siga na próxima seção.
 
-### Criar um Service Principal (caso o desenvolvimento não seja feito com .NET Core, ou seja .NET Core sem Visual Studio)
+## Criar um Service Principal (caso o desenvolvimento não seja feito com .NET Core, ou seja .NET Core sem Visual Studio)
 
 Se a aplicação sendo desenvolvida não utilizar .NET Core, ou utilizar mas não usar Visual Studio, então deve ser configurado um *Service Principal* para que o desenvolvimento local possa acessar o Key Vault.
 
@@ -124,13 +124,239 @@ Ao final, o Key Vault será acessível pelo seu criado, pelo *App Service* e pel
 
 Toda a configuração necessária está finalizada. É hora de implementar o acesso no código.
 
-### Implementar o acesso no código
+## Implementar o acesso no código
 
-Para continuar esse tutorial, siga o arquivo README.md de cada um dos caminhos possíveis:
-- [Desenvolvimento .NET Core com Visual Studio](/dotnet-and-visual-studio)
-- [Desenvolvimento .NET Core com Visual Studio Code](/dotnet-and-vs-code)
-- [Desenvolvimento Java](/java-service-principal)
+Para continuar esse tutorial, siga cada um dos caminhos possíveis:
+- [Desenvolvimento .NET Core com Visual Studio](#desenvolvimento-net-core-com-visual-studio)
+- [Desenvolvimento .NET Core com Visual Studio Code](#desenvolvimento-net-core-com-visual-studio-code)
+- [Desenvolvimento Java](#desenvolvimento-java)
 
-## Referências
+### Desenvolvimento .NET Core com Visual Studio
+
+Este é o caminho que necessita a menor quantidade de configuração. Basta incluir o código que inicia as configurações do Key Vault ao criar o WebHostBuilder e, opcionalmente, registrar uma classe que representa esta configuração.
+
+Primeiro, no seu projeto .NET Core, adicione os pacotes *Microsoft.Azure.KeyVault*, *Microsoft.Azure.Services.AppAuthentication* e *Microsoft.Extensions.Configuration.AzureKeyVault*. Esses pacotes são responsáveis por, respectivamente, ler dados do Key Vault, autenticar o desenvolvedor quando rodando local ou autenticar usando as credenciais da aplicação quando rodando na rede da Azure, e por incluir os dados do Key Vault na configuração da aplicação quando esta é iniciada:
+
+![.NET Core Visual Studio Nuget packages](/resources/images/dotnet-vs-npm-packages.png?raw=true)
+
+Após isso, devemos dizer à aplicação para incluir em suas configurações os dados KeyVault. Inicialmente, o arquivo Program.cs deve estar parecido com este:
+```C#
+public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+    WebHost.CreateDefaultBuilder(args)
+        .UseStartup<Startup>();
+```
+
+Vamos então dizer ao WebHostBuilder como obter configurações do Key Vault. Para isso, vamos adicionar o método *ConfigureAppConfiguration* e obter a url do Key Vault que foi criado nos passos anteriores:
+
+![Key Vault url](/resources/iamges/key-vault-url.png?raw=true)
+
+```C#
+public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+    WebHost.CreateDefaultBuilder(args)
+        .ConfigureAppConfiguration((context, configuration) =>
+        {
+            string azureVaultUrl = configuration.Build()["KeyVault:Url"];
+        })
+        .UseStartup<Startup>();
+```
+
+Observe que também devemos atualizar o arquivo *appSettings.json* com a chave "KeyVault:Url":
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "KeyVault": {
+    "Url": "https://<key-vault-name>.vault.azure.net"
+  },
+  "AllowedHosts": "*"
+}
+```
+
+Agora, incluímos a classe que será responsável por autenticar o usuário correto na Azure e obter o token de acesso para o Key Vault. Essa classe é a *AzureServiceTokenProvider*. Em um ambiente local, ela irá autenticar na Azure com o usuário autenticado no Visual Studio. Quando o código for executado na rede da Azure, ela irá utilizar o endpoint do MSI para autenticar a própria *Managed Identity* da aplicação.
+
+Para garantir que o desenvolvedor está logado no Visual Studio, acesse __Tools > Options > Azure Service Authentication > Account Selection__ e selecione a conta que você deseja usar (ou adicione uma nova):
+
+![.NET Core Visual Studio Azure authentication](/resources/images/dotnet-vs-authenticate-azure.png?raw=true)
+
+Inclua o token provider no código:
+```C#
+public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+    WebHost.CreateDefaultBuilder(args)
+        .ConfigureAppConfiguration((context, configuration) =>
+        {
+            string azureVaultUrl = configuration.Build()["KeyVault:Url"];
+            AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
+        })
+        .UseStartup<Startup>();
+```
+
+Vamos incluir agora o cliente que irá acessar o Key Vault. Esse cliente espera, em seu construtor, um callback que é responsável por efetivamente autenticar o usuário na Azure e obter o token de acesso para o Key Vault usar. Nós iremos passar o callback existente no *AzureServiceTokenProvider* que fará toda a autenticação pra gente:
+```C#
+public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+    WebHost.CreateDefaultBuilder(args)
+        .ConfigureAppConfiguration((context, configuration) =>
+        {
+            string azureVaultUrl = configuration.Build()["KeyVault:Url"];
+            AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
+
+            KeyVaultClient keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+        })
+        .UseStartup<Startup>();
+```
+
+Por fim, basta adicionar o *KeyVaultClient* como uma fonte de configurações para a aplicação:
+```C#
+public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+    WebHost.CreateDefaultBuilder(args)
+        .ConfigureAppConfiguration((context, configuration) =>
+        {
+            string azureVaultUrl = configuration.Build()["KeyVault:Url"];
+            AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
+
+            KeyVaultClient keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+            configuration.AddAzureKeyVault(azureVaultUrl, keyVaultClient, new DefaultKeyVaultSecretManager());
+        })
+        .UseStartup<Startup>();
+```
+
+Para utilizar as chaves do Key Vault, vamos alterar um dos *Controllers* da API para obter a string de conexão do KeyVault, acessar o banco de dados, e retornar o nome do usuário utilizado na conexão. O código original é esse:
+```C#
+[Route("api/[controller]")]
+[ApiController]
+public class UserController : ControllerBase
+{
+    [HttpGet]
+    public async Task<ActionResult<string>> Get()
+    {
+        string connectionString = "Server=tcp:<your-database-server>.database.windows.net,1433;Initial Catalog=<your-database-name>;User ID=<user-name>;Password=<password>;";
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            connection.Open();
+            using (SqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT SYSTEM_USER";
+                object result = command.ExecuteScalar();
+                return Ok(result);
+            }
+        }
+    }
+}
+
+```
+
+Este código produz o resultado:
+
+![Browser user name before key vault](/resources/images/browser-before-key-vault.png?raw=true)
+
+Vamos agora mover essa string de conexão para o Key Vault. Acesse o Key Vault, e escolha Secrets e depois Generate/Import:
+
+![Key Vault generate secret](/resources/images/key-vault-generate-secret.png?raw=true)
+
+Preencha o nome, o valor e garanta que ele está habilitado. Há um motivo para criarmos o o nome do segredo usando os dois híphens, que explicaremos mais adiante:
+
+![Key Vault secret creation](/resources/images/key-vault-secret-creation.png?raw=true)
+
+Agora, iremos alterar o Controller para receber uma instância de *IConfiguration* no construtor via DI. A partir dele, podemos ler os segredos do Key Vault, trocando os dois híphens pelo símbolo de dois pontos (":"). Vamos ler a string de conexão dessa forma e salvá-la em uma propriedade, utilizá-la para acessar o banco, e retorná-la para a tela junto com o resultado de nossa consulta:
+```C#
+[Route("api/[controller]")]
+[ApiController]
+public class UserController : ControllerBase
+{
+    public string ConnectionString { get; private set; }
+
+    public UserController(IConfiguration configuration)
+    {
+        // The secret name in the key vault is "Secrets--ConnectionString", but two dashes are changed into colons
+        this.ConnectionString = configuration["Secrets:ConnectionString"];
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<string>> Get()
+    {
+        using (SqlConnection connection = new SqlConnection(this.ConnectionString))
+        {
+            connection.Open();
+            using (SqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT SYSTEM_USER";
+                object result = command.ExecuteScalar();
+                return Ok(new { ConnectionString, result });
+            }
+        }
+    }
+}
+```
+
+Essa alteração produz o resultado:
+
+![Browser after key vault](/resources/images/browser-after-key-vault.png?raw=true)
+
+E pronto! Nossa string de conexão está segura no Key Vault, e não temos ela armazenada no código.
+
+Podemos agora publicar essa aplicação e obtermos os mesmos resultados:
+
+![Browser deployed on Azure](/resources/images/browser-deployed-on-azure.png?raw=true)
+
+__*Bônus:* Utilizando classe fortemente tipada para organizar os segredos__
+
+Utilizamos o nome do secret no Key Vault com os dois híphens porque o Key Vault infere que os dois hífens indicam uma estrutura hierárquica. Quando essa estrutura é levada para o config, o padrão do *IConfiguration* para hierarquia é de dois pontos (":"). Por isso que no código de obter o valor do Secret, utilizamos a string "Secrets:ConnectionString".
+
+E a vantagem de se utilizar essas estruturas hierárquicas, é que podemos utilizar o padrão *IOptions* do .NET Core para já embutir esses valores de forma tipada. No nosso caso, criaremos a classe *Secrets*:
+```C#
+public class Secrets
+{
+    public string ConnectionString { get; set; }
+}
+```
+
+Incluímos no arquivo *Startup* o código para carregar os valores do *IConfiguration* na classe *Secrets* e provemos essa classe como um serviço:
+```C#
+public void ConfigureServices(IServiceCollection services)
+{
+    // Register the IOptions object
+    services.Configure<Secrets>(Configuration.GetSection("Secrets"));
+    // Explicitly register the Secrets object by delegating to the IOptions object
+    services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<Secrets>>().Value);
+}
+```
+
+Alterar nosso Controller para receber uma instância da classe *Secrets* ao invés de *IConfiguration*:
+```C#
+[Route("api/[controller]")]
+[ApiController]
+public class UserController : ControllerBase
+{
+    public string ConnectionString { get; private set; }
+
+    public UserController(Secrets secrets)
+    {
+        this.ConnectionString = secrets.ConnectionString;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<string>> Get()
+    {
+        using (SqlConnection connection = new SqlConnection(this.ConnectionString))
+        {
+            connection.Open();
+            using (SqlCommand command = connection.CreateCommand())
+            {
+                command.CommandText = "SELECT SYSTEM_USER";
+                object result = command.ExecuteScalar();
+                return Ok(new { ConnectionString, result });
+            }
+        }
+    }
+}
+```
+
+### Desenvolvimento .NET Core com Visual Studio Code
+
+### Desenvolvimento Java
+
+# Referências
 
 [Read Azure key vault secret through MSI in Java](https://stackoverflow.com/questions/51750846/read-azure-key-vault-secret-through-msi-in-java)
