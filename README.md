@@ -127,9 +127,9 @@ Toda a configuração necessária está finalizada. É hora de implementar o ace
 ### Implementar o acesso no código
 
 Para continuar esse tutorial, siga o arquivo README.md de cada um dos caminhos possíveis:
-- [Desenvolvimento .NET Core com Visual Studio](/managed-identity-using-dotnet-and-visual-studio)
-- [Desenvolvimento .NET Core com Visual Studio Code](/managed-identity-using-dotnet-and-vs-code)
-- [Desenvolvimento Java](/service-principal-using-java)
+- [Desenvolvimento .NET Core com Visual Studio](/dotnet-and-visual-studio)
+- [Desenvolvimento .NET Core com Visual Studio Code](/dotnet-and-vs-code)
+- [Desenvolvimento Java](/java-service-principal)
 
 ## Referências
 
