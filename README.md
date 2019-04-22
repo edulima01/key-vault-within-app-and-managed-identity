@@ -355,6 +355,44 @@ public class UserController : ControllerBase
 
 ### Desenvolvimento .NET Core com Visual Studio Code
 
+Para utilizar o Visual Studio Code, é simples. Todas as alterações de código que foram feitas na seção anterior (.NET Core com Visual Studio) devem ser feitas aqui também. E a única configuração é no arquivo *launch.json*, onde é feita a inclusão da variável de ambiente *AzureServicesAuthConnectionString*. O pacote *Microsoft.Azure.Services.AppAuthentication* já está programado para, rodando em ambiente local, caso não encontre um usuário do Visual Studio, ele utilize as credenciais desta variável de ambiente:
+
+```json
+{
+   "version": "0.2.0",
+   "configurations": [
+        {
+            "name": ".NET Core Launch (web)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/bin/Debug/netcoreapp2.1/AppUsingKeyVault.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "launchBrowser": {
+                "enabled": true
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "AzureServicesAuthConnectionString": "RunAs=App;TenantId=c1305c4d-6577-4c06-a7ee-720c5182f2d9;AppId=89afb9e3-c0b3-4936-ae84-7d3069871111;AppKey=NsXvxfx0cytAGL4altG4qUo7Ig3+S19ufZAeg+lb4p8=;"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
+            "name": ".NET Core Attach",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:pickProcess}"
+        }
+    ]
+}
+```
+
+E pronto, tudo já está configurado para execução local do projeto utilizando .NET Core com Visual Studio Code.
+
 ### Desenvolvimento Java
 
 # Referências
