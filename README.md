@@ -131,6 +131,8 @@ Para continuar esse tutorial, siga cada um dos caminhos possíveis:
 - [Desenvolvimento .NET Core com Visual Studio Code](#desenvolvimento-net-core-com-visual-studio-code)
 - [Desenvolvimento Java](#desenvolvimento-java)
 
+O código para cada um dos caminhos acima estão disponíveis, respectivamente, em [/dotnet-and-visual-studio](/dotnet-and-visual-studio), [/dotnet-and-vs-code](/dotnet-and-vs-code) e [/java-and-vs-code](/java-and-vs-code).
+
 ### Desenvolvimento .NET Core com Visual Studio
 
 Este é o caminho que necessita a menor quantidade de configuração. Basta incluir o código que inicia as configurações do Key Vault ao criar o WebHostBuilder e, opcionalmente, registrar uma classe que representa esta configuração.
