@@ -397,4 +397,8 @@ E pronto, tudo já está configurado para execução local do projeto utilizando
 
 # Referências
 
-[Read Azure key vault secret through MSI in Java](https://stackoverflow.com/questions/51750846/read-azure-key-vault-secret-through-msi-in-java)
+- [How to use managed identities for App Service and Azure Functions](https://docs.microsoft.com/en-us/azure/app-service/overview-managed-identity)
+- [Azure Key Vault Configuration Provider in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/security/key-vault-configuration?view=aspnetcore-2.2)
+- [Service-to-service authentication to Azure Key Vault using .NET](https://docs.microsoft.com/en-us/azure/key-vault/service-to-service-authentication)
+- [Get keyvault secrets using Spring api with Managed Service Identities](https://stackoverflow.com/questions/55187035/get-keyvault-secrets-using-spring-api-with-managed-service-identities)
+- [Read Azure key vault secret through MSI in Java](https://stackoverflow.com/questions/51750846/read-azure-key-vault-secret-through-msi-in-java)
