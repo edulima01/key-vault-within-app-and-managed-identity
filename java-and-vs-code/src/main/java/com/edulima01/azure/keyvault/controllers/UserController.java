@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RestController
 public class UserController {
     
-    @Value("${Secrets--ConnectionString--JDBC}")
+    @Value("${secrets.connectionstring}")
     private String connectionString;
     
     @Autowired

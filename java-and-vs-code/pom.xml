@@ -16,9 +16,9 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<azure.version>2.1.2</azure.version>
+		<azure.version>2.1.4</azure.version>
 		<deployment.resource-group>app-using-key-vault</deployment.resource-group>
-		<deployment.app-name>app-using-key-vault-linux</deployment.app-name>
+		<deployment.app-name>app-using-key-vault-java</deployment.app-name>
 		<deployment.region>eastus</deployment.region>
 	</properties>
 
@@ -75,12 +75,16 @@
 						<property> 
 							<name>JAVA_OPTS</name> 
 							<value>-Dserver.port=80</value> 
-						</property> 
+						</property>
 					</appSettings>
 					<resourceGroup>${deployment.resource-group}</resourceGroup>
 					<appName>${deployment.app-name}</appName>
 					<region>${deployment.region}</region>  
-					<linuxRuntime>jre8</linuxRuntime>
+					<runtime>
+						<os>Windows</os>
+						<javaVersion>1.8</javaVersion>
+						<webContainer>tomcat 8.5</webContainer>
+					</runtime>
 				</configuration>
 			</plugin>
 		</plugins>
