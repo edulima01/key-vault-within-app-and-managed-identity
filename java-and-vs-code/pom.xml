@@ -2,16 +2,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.1.4.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+	
 	<groupId>com.edulima01.azure</groupId>
 	<artifactId>keyvault</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
+	
 	<name>Accessing Key Vault using MSI</name>
 	<description>Demo app to access Azure Key Vault using a Managed Identity</description>
 
@@ -21,6 +24,7 @@
 		<deployment.resource-group>app-using-key-vault-java</deployment.resource-group>
 		<deployment.app-name>app-using-key-vault-java</deployment.app-name>
 		<deployment.region>eastus</deployment.region>
+		<deployment.pricing-tier>B1</deployment.pricing-tier>
 	</properties>
 
 	<dependencies>
@@ -72,39 +76,29 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>com.microsoft.azure</groupId>
-				<artifactId>azure-webapp-maven-plugin</artifactId>
-				<version>1.5.2</version>
-				<configuration>
-					<schemaVersion>v2</schemaVersion>
-					<deploymentType>jar</deploymentType>
-					<appSettings>
-						<property> 
-							<name>JAVA_OPTS</name> 
-							<value>-Dserver.port=80</value> 
-						</property>
-					</appSettings>
-					<resourceGroup>${deployment.resource-group}</resourceGroup>
-					<appName>${deployment.app-name}</appName>
-					<region>${deployment.region}</region>  
-					<pricingTier>B1</pricingTier>
-					<runtime>
-						<os>Linux</os>
-						<javaVersion>jre8</javaVersion>
-						<webContainer>tomcat 9.0</webContainer>
-					</runtime>
-					<deployment>
-						<resources>
-							<resource>
-								<directory>${project.basedir}/target</directory>
-								<includes>
-									<include>*.war</include>
-								</includes>
-							</resource>
-						</resources>
-					</deployment>
-					<stopAppDuringDeployment>true</stopAppDuringDeployment>
-				</configuration>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>azure-webapp-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <configuration>
+                    <deploymentType>jar</deploymentType>
+
+                    <!-- configure app to run on port 80, required by App Service -->
+                    <appSettings>
+                        <property> 
+                            <name>JAVA_OPTS</name> 
+                            <value>-Dserver.port=80</value> 
+                        </property> 
+                    </appSettings>
+
+                    <!-- Web App information -->
+                    <resourceGroup>${deployment.resource-group}</resourceGroup>
+                    <appName>${deployment.app-name}</appName>
+                    <region>${deployment.region}</region>
+                    <pricingTier>${deployment.pricing-tier}</pricingTier>
+
+                    <!-- Java Runtime Stack for Web App on Linux-->
+                    <linuxRuntime>jre8</linuxRuntime>
+                </configuration>
 			</plugin>
 		</plugins>
 	</build>
