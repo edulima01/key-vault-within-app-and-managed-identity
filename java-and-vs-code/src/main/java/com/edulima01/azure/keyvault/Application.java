@@ -5,7 +5,6 @@ import java.util.Iterator;
 import javax.sql.DataSource;
 
 import com.microsoft.azure.keyvault.spring.KeyVaultPropertySource;
-import com.microsoft.azure.spring.autoconfigure.sqlserver.KeyVaultProperties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,15 +24,15 @@ public class Application {
 	private String connectionString;
 
 	@Bean
-	public JdbcTemplate jdbcTemplate(DataSource dataSource)
-	{
-		return new JdbcTemplate(dataSource);
-	}
-
-	@Bean
 	public DataSource dataSource()
 	{
 		return DataSourceBuilder.create().url(connectionString).build();
+	}
+
+	@Bean
+	public JdbcTemplate jdbcTemplate(DataSource dataSource)
+	{
+		return new JdbcTemplate(dataSource);
 	}
 
 	public static void main(String[] args) {

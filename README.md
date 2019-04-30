@@ -377,7 +377,7 @@ Para utilizar o Visual Studio Code, é simples. Todas as alterações de código
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "AzureServicesAuthConnectionString": "RunAs=App;TenantId=c1305c4d-6577-4c06-a7ee-720c5182f2d9;AppId=89afb9e3-c0b3-4936-ae84-7d3069871111;AppKey=NsXvxfx0cytAGL4altG4qUo7Ig3+S19ufZAeg+lb4p8=;"
+                "AzureServicesAuthConnectionString": "RunAs=App;TenantId=<YOUR TENANT ID>;AppId=<CLIENT ID OF THE SERVICE PRINCIPAL>;AppKey=<CLIENT SECRET OF THE SERVICE PRINCIPAL>;"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
@@ -397,10 +397,184 @@ E pronto, tudo já está configurado para execução local do projeto utilizando
 
 ### Desenvolvimento Java
 
-# Referências
+Para o desenvolvimento java, iremos utilizar o *spring boot* para acelerar o desenvolvimento da aplicação.
 
-- [How to use managed identities for App Service and Azure Functions](https://docs.microsoft.com/en-us/azure/app-service/overview-managed-identity)
+Para isso, primeiro acesse *http://start.spring.io* e selecione as opções padrão para o Spring clicando em *More options*: utilizando *maven*, Java, versão 2.1.4 do Spring Boot, e informe o grupo, artefato, nome, descrição do projeto, o tipo de empacotamento como sendo *jar*, e a versão do Java 8.
+
+![Spring boot initial configuration](/resources/images/spring-boot-initial-config.png?raw=true)
+
+Na caixa de *Search dependencies to add*, digite e depois selecione o pacote referente a: *web*, *jdbc*, *sql server* e *Azure Key Vault*.
+
+![Spring boot dependencies](/resources/images/spring-boot-dependencies.png?raw=true)
+
+Clique em Generate Project, baixe o arquivo zip gerado e extraia ele para uma pasta, que será a raiz do projeto.
+
+Iremos acertar o arquivo *pom.xml*. Para isso, primeiro altere a tag *properties* para atualizar a versão dos pacotes da Azure para 2.1.4, e inclua as propriedades que serão utilizadas para o deploy da aplicação na azure. Preencha essas propriedades com o nome do grupo de recursos, o nome do App Service (que será um servidor Linux), o nome da região e o tamanho da máquina associada ao Service Plan.
+
+__Obs.:__ não é possível ter um App Service rodando Windows e outro rodando Linux dentro do mesmo grupo de recursos.
+
+```xml
+<properties>
+    <java.version>1.8</java.version>
+    <azure.version>2.1.4</azure.version>
+    <deployment.resource-group>app-using-key-vault-java</deployment.resource-group>
+    <deployment.app-name>app-using-key-vault-java</deployment.app-name>
+    <deployment.region>eastus</deployment.region>
+    <deployment.pricing-tier>B1</deployment.pricing-tier>
+</properties>
+```
+
+Na seção *dependency management*, devemos fixar a versão da biblioteca do Key Vault como sendo 1.2.0, para corrigir um erro no Azure Spring Boot, que causa um conflito de referências (ver [Fail to get Key Vault access through MSI](https://github.com/Microsoft/azure-spring-boot/issues/621)).
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-spring-boot-bom</artifactId>
+            <version>${azure.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-keyvault</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+Por fim, adicionar o plugin Azure Webapp Maven no ciclo de build, para que ele faça o deploy da aplicação na Azure.
+
+```xml
+<plugin>
+    <groupId>com.microsoft.azure</groupId>
+    <artifactId>azure-webapp-maven-plugin</artifactId>
+    <version>1.4.0</version>
+    <configuration>
+        <deploymentType>jar</deploymentType>
+
+        <!-- configure app to run on port 80, required by App Service -->
+        <appSettings>
+            <property> 
+                <name>JAVA_OPTS</name> 
+                <value>-Dserver.port=80</value> 
+            </property> 
+        </appSettings>
+
+        <!-- Web App information -->
+        <resourceGroup>${deployment.resource-group}</resourceGroup>
+        <appName>${deployment.app-name}</appName>
+        <region>${deployment.region}</region>
+        <pricingTier>${deployment.pricing-tier}</pricingTier>
+
+        <!-- Java Runtime Stack for Web App on Linux-->
+        <linuxRuntime>jre8</linuxRuntime>
+    </configuration>
+</plugin>
+```
+
+Para que o deploy aconteça, é necessário instalar o Azure CLI e fazer o login:
+
+```shell
+az login
+az account set --subscription <subscription id>
+```
+
+Com as configurações feitas, precisamos fazer as alterações no código para utilizar o Key Vault como fonte de configuração para o projeto. Para isso, na pasta *src/main/resources*, crie os arquivos *application.properties* e *application-local.properties*.
+
+O arquivo *application.properties* terá as configurações gerais do projeto, e as informações básicas do Key Vault.
+
+```INI
+azure.keyvault.enabled=true
+azure.keyvault.uri=https://<key vault name>.vault.azure.net
+```
+
+O arquivo *application-local.properties* será usado quando a aplicação for executada localmente, e aí, será incluído o Client Id e o Client Secret do Service Principal criado para essa situação, nos passos anteriores.
+
+```INI
+azure.keyvault.client-id=<client id>
+azure.keyvault.client-key=<client secret>
+```
+
+Agora, vamos criar um arquivo que será o Controller REST pra receber as chamadas. Crie um arquivo *UserController.java* com o seguinte código:
+
+```java
+@RestController
+public class UserController {
+    
+    // The secret name in the key vault is "Secrets-ConnectionString", but one dash is changed to a dot
+    @Value("${secrets.connectionstring}")
+    private String connectionString;
+    
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @RequestMapping("/api/User")
+    public Result index() {
+        String userName = (String)jdbcTemplate.queryForObject("SELECT SYSTEM_USER", String.class);
+        Result result = new Result();
+        result.setConnectionString(connectionString);
+        result.setResult(userName);
+        return result;
+    }
+}
+```
+
+Onde *Result* é uma classe POJO com as propriedades *result* e *connectionString*. Observe que nessa classe estamos usando um *JdbcTemplate* para acessar o banco, que já foi configurado com a string de conexão do key vault. A configuração dele está na classe *Application*:
+
+```java
+@Value("${secrets.connectionstring}")
+private String connectionString;
+
+@Bean
+public DataSource dataSource()
+{
+    return DataSourceBuilder.create().url(connectionString).build();
+}
+
+@Bean
+public JdbcTemplate jdbcTemplate(DataSource dataSource)
+{
+    return new JdbcTemplate(dataSource);
+}
+```
+
+Nessa classe eu injeto o valor do *Secret* na propriedade *connectionString*, utilizo essa propriedade pra criar um *DataSource*, e uso este para criar o *JdbcTemplate*.
+
+Pronto. Podemos compilar o código e rodar localmente com o comando:
+
+```shell
+mvn clean package spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+Aí, ele irá executar utilizando o arquivo *properties* local, que contém o Client ID e o Client Secret, junto do arquivo *properties* padrão. Basta essas propriedades estarem presente em tempo de execução para o Azure Key Vault entender que ele deve se autenticar usando um *Service Principal*.
+
+Para realizar o deploy do projeto, executar o comando:
+
+```shell
+mvn azure-webapp:deploy
+```
+
+Ele irá utilizar a conta que está logada usando o Azure CLI nos passos anteriores para realizar o deploy da aplicação no grupo de recursos e App Service indicados no arquivo *pom*.
+
+Como a versão que está rodando na Azure __não__ especifica um profile para o Spring Boot, então somente o arquivo *properties* padrão é carregado e, por não ter sido especificado um Client ID e Client Secret, o Azure Key Vault irá tentar se autenticar utilizando o *Managed Identity*.
+
+![Browser java deployed on Azure](/resources/images/browser-java-deployed-on-azure.png?raw=true)
+
+__*Obs.:*__ nos exemplos acima, utilizamos o acesso à chave usando a notação padrão do Java com Spring, que é colocar um ponto para gerar hierarquias. Em Java, a biblioteca da Azure Key Vault, diferentemente da biblioteca em .NET, troca um hífen por um ponto nos nomes das chaves para gerar a hierarquia. Então, nos nossos exemplos, deveria ter uma chave chamada *Secrets-ConnectionString* no Key Vault para que ela fosse encontrada. Mas, as duas versões são disponibilizadas no ambiente Java, tanto a versão com o hífen, quanto a versão com o ponto. Essa diferença de padronização de nomenclatura deve ser levada em conta ao criar um Key Vault compartilhado entre dois projetos.
+
+# Referências
 - [Azure Key Vault Configuration Provider in ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/security/key-vault-configuration?view=aspnetcore-2.2)
-- [Service-to-service authentication to Azure Key Vault using .NET](https://docs.microsoft.com/en-us/azure/key-vault/service-to-service-authentication)
 - [Get keyvault secrets using Spring api with Managed Service Identities](https://stackoverflow.com/questions/55187035/get-keyvault-secrets-using-spring-api-with-managed-service-identities)
 - [Read Azure key vault secret through MSI in Java](https://stackoverflow.com/questions/51750846/read-azure-key-vault-secret-through-msi-in-java)
+- [Service-to-service authentication to Azure Key Vault using .NET](https://docs.microsoft.com/en-us/azure/key-vault/service-to-service-authentication)
+- [How to use managed identities for App Service and Azure Functions](https://docs.microsoft.com/en-us/azure/app-service/overview-managed-identity)
+- [Authentication samples for Azure Key Vault using the Azure Java SDK](https://github.com/Azure-Samples/key-vault-java-authentication)
+- [Azure SDKs for Java](https://github.com/Azure/azure-sdk-for-java)
+- [Spring on Azure](https://docs.microsoft.com/en-us/java/azure/spring-framework/?view=azure-java-stable)
+- [Azure Key Vault Secrets Spring boot starter](https://github.com/Microsoft/azure-spring-boot/tree/master/azure-spring-boot-starters/azure-keyvault-secrets-spring-boot-starter)
+- [What is managed identities for Azure resources?](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview)
+- [Fail to get Key Vault access through MSI](https://github.com/Microsoft/azure-spring-boot/issues/621)
+- [Maven Plugin for Azure App Service](https://github.com/Microsoft/azure-maven-plugins/tree/develop/azure-webapp-maven-plugin)
