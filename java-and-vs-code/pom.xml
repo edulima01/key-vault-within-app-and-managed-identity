@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.1.4.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	
+	<groupId>com.edulima01.azure</groupId>
+	<artifactId>keyvault</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	
+	<name>Accessing Key Vault using MSI</name>
+	<description>Demo app to access Azure Key Vault using a Managed Identity</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<azure.version>2.1.4</azure.version>
+		<deployment.resource-group>app-using-key-vault-java</deployment.resource-group>
+		<deployment.app-name>app-using-key-vault-java</deployment.app-name>
+		<deployment.region>eastus</deployment.region>
+		<deployment.pricing-tier>B1</deployment.pricing-tier>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.microsoft.azure</groupId>
+			<artifactId>azure-keyvault-secrets-spring-boot-starter</artifactId>
+		</dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.microsoft.azure</groupId>
+				<artifactId>azure-spring-boot-bom</artifactId>
+				<version>${azure.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.microsoft.azure</groupId>
+				<artifactId>azure-keyvault</artifactId>
+				<version>1.2.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>azure-webapp-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <configuration>
+                    <deploymentType>jar</deploymentType>
+
+                    <!-- configure app to run on port 80, required by App Service -->
+                    <appSettings>
+                        <property> 
+                            <name>JAVA_OPTS</name> 
+                            <value>-Dserver.port=80</value> 
+                        </property> 
+                    </appSettings>
+
+                    <!-- Web App information -->
+                    <resourceGroup>${deployment.resource-group}</resourceGroup>
+                    <appName>${deployment.app-name}</appName>
+                    <region>${deployment.region}</region>
+                    <pricingTier>${deployment.pricing-tier}</pricingTier>
+
+                    <!-- Java Runtime Stack for Web App on Linux-->
+                    <linuxRuntime>jre8</linuxRuntime>
+                </configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

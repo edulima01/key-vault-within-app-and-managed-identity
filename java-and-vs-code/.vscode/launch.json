@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "env": {
+                "spring.profiles.include": "local"
+            }
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Application<keyvault>",
+            "request": "launch",
+            "mainClass": "com.edulima01.azure.keyvault.Application",
+            "projectName": "keyvault",
+            "env": {
+                "spring.profiles.include": "local"
+            }
+        }
+    ]
+}
