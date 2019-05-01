@@ -66,37 +66,37 @@ Com todos os conceitos necessários sendo explicados acima, vamos exemplificar o
 
 Em primeiro lugar, vamos criar um App Service. A criação é padrão, preenchendo o nome, grupo de recurso, região, e escolhendo o plano de serviço:
 
-![App Service creation](/resources/images/app-service-creation.png?raw=true)
+![App Service creation](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/app-service-creation.png?raw=true)
 
 Após criar, selecione a opção *Identity*:
 
-![App Service identity selection](/resources/images/app-service-select-identity-blade.png?raw=true)
+![App Service identity selection](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/app-service-select-identity-blade.png?raw=true)
 
 Nessa tela, altere a opção *Status* para *On* na guia *System assigned*, e confirme as alterações:
 
-![App Service turning managed identity on](/resources/images/app-service-create-managed-identity.png?raw=true)
+![App Service turning managed identity on](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/app-service-create-managed-identity.png?raw=true)
 
 Ao final, o identificador do *Service Principal* criado para o App Service é exibido:
 
-![App Service managed identity created](/resources/images/app-service-managed-identity-created.png?raw=true)
+![App Service managed identity created](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/app-service-managed-identity-created.png?raw=true)
 
 Depois de criar o App Service e sua Managed Identity, vamos para a criação do Key Vault.
 
 Na tela de criação do Key Vault, informe um nome, um grupo de recurso, uma região e o pricing tier, e clique em *Access policies*:
 
-![Key Vault creation](/resources/images/key-vault-creation.png?raw=true)
+![Key Vault creation](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/key-vault-creation.png?raw=true)
 
 Na tela de políticas de acesso, você verá que o usuário criando o Key Vault já tem acesso ao mesmo. Clique em *Add New*:
 
-![Key Vault access policies](/resources/images/key-vault-add-access-policy.png?raw=true)
+![Key Vault access policies](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/key-vault-add-access-policy.png?raw=true)
 
 Clique em *Select principal*, pesquise o nome do App Service criado, clique no nome do App Service informado e clique em Select:
 
-![Key Vault new access policy](/resources/images/key-vault-select-managed-identity-principal.png?raw=true)
+![Key Vault new access policy](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/key-vault-select-managed-identity-principal.png?raw=true)
 
 Informe as políticas de *Get* e de *List* para *Secret permissions* e clique em Ok:
 
-![Key Vault new access policy permissions](/resources/images/key-vault-permissions-selection.png?raw=true)
+![Key Vault new access policy permissions](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/key-vault-permissions-selection.png?raw=true)
 
 Aguarde a criação do Key Vault. Quando terminar, o App Service já terá acesso ao Key Vault. Caso a aplicação sendo desenvolvida usa .NET Core com Visual Studio, pule para a seção [Implementar o acesso no código](#implementar-o-acesso-no-código). Caso contrário, siga na próxima seção.
 
@@ -106,21 +106,21 @@ Se a aplicação sendo desenvolvida não utilizar .NET Core, ou utilizar mas nã
 
 Nesse caso, primeiro crie uma *App Registration* (o mesmo que um Service Principal), informando um nome e uma url de redirecionamento (não se preocupe com essa url, pode ser uma url local, como no print abaixo):
 
-![Service Principal creation](/resources/images/service-principal-creation.png?raw=true)
+![Service Principal creation](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/service-principal-creation.png?raw=true)
 
 Após a criação, clique em *Settings*, e em *Keys* para a criação do *Client Secret* que deverá ser utilizado no desenvolvimento local:
 
-![Service Principal add key](/resources/images/service-principal-add-secret.png?raw=true)
+![Service Principal add key](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/service-principal-add-secret.png?raw=true)
 
 Informe uma descrição e uma data de expiração para essa chave de acesso e clique em Salvar (lembre-se de salvar essa chave de acesso, pois ela não será exibida novamente):
 
-![Service Principal key created](/resources/images/service-principal-client-secret-creation.png?raw=true)
+![Service Principal key created](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/service-principal-client-secret-creation.png?raw=true)
 
 Por fim, navegue até o Key Vault, selecione *Access policies* e adicione esse *Service Principal* da mesma forma que o *App Service* foi adicionado na seção anterior.
 
 Ao final, o Key Vault será acessível pelo seu criador, pelo *App Service* e pelo *Service Principal*:
 
-![Key Vault completed](/resources/images/key-vault-final-access-policies.png?raw=true)
+![Key Vault completed](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/key-vault-final-access-policies.png?raw=true)
 
 Toda a configuração necessária está finalizada. É hora de implementar o acesso no código.
 
@@ -131,7 +131,7 @@ Para continuar esse tutorial, siga cada um dos caminhos possíveis:
 - [Desenvolvimento .NET Core com Visual Studio Code](#desenvolvimento-net-core-com-visual-studio-code)
 - [Desenvolvimento Java](#desenvolvimento-java)
 
-O código para cada um dos caminhos acima estão disponíveis, respectivamente, em [/dotnet-and-visual-studio](/dotnet-and-visual-studio), [/dotnet-and-vs-code](/dotnet-and-vs-code) e [/java-and-vs-code](/java-and-vs-code).
+O código para cada um dos caminhos acima estão disponíveis, respectivamente, em [/dotnet-and-visual-studio](https://github.com/edulima01/keyvault-managed-identity/blob/master/dotnet-and-visual-studio), [/dotnet-and-vs-code](https://github.com/edulima01/keyvault-managed-identity/blob/master/dotnet-and-vs-code) e [/java-and-vs-code](https://github.com/edulima01/keyvault-managed-identity/blob/master/java-and-vs-code).
 
 ### Desenvolvimento .NET Core com Visual Studio
 
@@ -139,7 +139,7 @@ Este é o caminho que necessita a menor quantidade de configuração. Basta incl
 
 Primeiro, no seu projeto .NET Core, adicione os pacotes *Microsoft.Azure.KeyVault*, *Microsoft.Azure.Services.AppAuthentication* e *Microsoft.Extensions.Configuration.AzureKeyVault*. Esses pacotes são responsáveis por, respectivamente, ler dados do Key Vault, autenticar o desenvolvedor quando rodando local ou autenticar usando as credenciais da aplicação quando rodando na rede da Azure, e por incluir os dados do Key Vault na configuração da aplicação quando esta é iniciada:
 
-![.NET Core Visual Studio Nuget packages](/resources/images/dotnet-vs-npm-packages.png?raw=true)
+![.NET Core Visual Studio Nuget packages](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/dotnet-vs-npm-packages.png?raw=true)
 
 Após isso, devemos dizer à aplicação para incluir em suas configurações os dados KeyVault. Inicialmente, o arquivo Program.cs deve estar parecido com este:
 ```C#
@@ -150,7 +150,7 @@ public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
 
 Vamos então dizer ao WebHostBuilder como obter configurações do Key Vault. Para isso, vamos adicionar o método *ConfigureAppConfiguration* e obter a url do Key Vault que foi criado nos passos anteriores:
 
-![Key Vault url](/resources/images/key-vault-url.png?raw=true)
+![Key Vault url](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/key-vault-url.png?raw=true)
 
 ```C#
 public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
@@ -181,7 +181,7 @@ Agora, incluímos a classe que será responsável por autenticar o usuário corr
 
 Para garantir que o desenvolvedor está logado no Visual Studio, acesse __Tools > Options > Azure Service Authentication > Account Selection__ e selecione a conta que você deseja usar (ou adicione uma nova):
 
-![.NET Core Visual Studio Azure authentication](/resources/images/dotnet-vs-authenticate-azure.png?raw=true)
+![.NET Core Visual Studio Azure authentication](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/dotnet-vs-authenticate-azure.png?raw=true)
 
 Inclua o token provider no código:
 ```C#
@@ -251,15 +251,15 @@ public class UserController : ControllerBase
 
 Este código produz o resultado:
 
-![Browser user name before key vault](/resources/images/browser-before-key-vault.png?raw=true)
+![Browser user name before key vault](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/browser-before-key-vault.png?raw=true)
 
 Vamos agora mover essa string de conexão para o Key Vault. Acesse o Key Vault, escolha Secrets e depois Generate/Import:
 
-![Key Vault generate secret](/resources/images/key-vault-generate-secret.png?raw=true)
+![Key Vault generate secret](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/key-vault-generate-secret.png?raw=true)
 
 Preencha o nome, o valor e garanta que ele está habilitado. Há um motivo para criarmos o o nome do segredo usando os dois híphens, que explicaremos mais adiante:
 
-![Key Vault secret creation](/resources/images/key-vault-secret-creation.png?raw=true)
+![Key Vault secret creation](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/key-vault-secret-creation.png?raw=true)
 
 Agora, iremos alterar o Controller para receber uma instância de *IConfiguration* no construtor via DI. A partir dele, podemos ler os segredos do Key Vault, trocando os dois híphens pelo símbolo de dois pontos (":"). Vamos ler a string de conexão dessa forma e salvá-la em uma propriedade, utilizá-la para acessar o banco, e retorná-la para a tela junto com o resultado de nossa consulta:
 ```C#
@@ -294,13 +294,13 @@ public class UserController : ControllerBase
 
 Essa alteração produz o resultado:
 
-![Browser after key vault](/resources/images/browser-after-key-vault.png?raw=true)
+![Browser after key vault](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/browser-after-key-vault.png?raw=true)
 
 E pronto! Nossa string de conexão está segura no Key Vault, e não temos ela armazenada no código.
 
 Podemos agora publicar essa aplicação e obtermos os mesmos resultados:
 
-![Browser deployed on Azure](/resources/images/browser-deployed-on-azure.png?raw=true)
+![Browser deployed on Azure](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/browser-deployed-on-azure.png?raw=true)
 
 __*Bônus:* Utilizando classe fortemente tipada para organizar os segredos__
 
@@ -401,11 +401,11 @@ Para o desenvolvimento java, iremos utilizar o *spring boot* para acelerar o des
 
 Para isso, primeiro acesse *http://start.spring.io* e selecione as opções padrão para o Spring clicando em *More options*: utilizando *maven*, Java, versão 2.1.4 do Spring Boot, e informe o grupo, artefato, nome, descrição do projeto, o tipo de empacotamento como sendo *jar*, e a versão do Java 8.
 
-![Spring boot initial configuration](/resources/images/spring-boot-initial-config.png?raw=true)
+![Spring boot initial configuration](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/spring-boot-initial-config.png?raw=true)
 
 Na caixa de *Search dependencies to add*, digite e depois selecione o pacote referente a: *web*, *jdbc*, *sql server* e *Azure Key Vault*.
 
-![Spring boot dependencies](/resources/images/spring-boot-dependencies.png?raw=true)
+![Spring boot dependencies](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/spring-boot-dependencies.png?raw=true)
 
 Clique em Generate Project, baixe o arquivo zip gerado e extraia ele para uma pasta, que será a raiz do projeto.
 
@@ -561,7 +561,7 @@ Ele irá utilizar a conta que está logada usando o Azure CLI nos passos anterio
 
 Como a versão que está rodando na Azure __não__ especifica um profile para o Spring Boot, então somente o arquivo *properties* padrão é carregado e, por não ter sido especificado um Client ID e Client Secret, o Azure Key Vault irá tentar se autenticar utilizando o *Managed Identity*.
 
-![Browser java deployed on Azure](/resources/images/browser-java-deployed-on-azure.png?raw=true)
+![Browser java deployed on Azure](https://github.com/edulima01/keyvault-managed-identity/blob/master/resources/images/browser-java-deployed-on-azure.png?raw=true)
 
 __*Obs.:*__ nos exemplos acima, utilizamos o acesso à chave usando a notação padrão do Java com Spring, que é colocar um ponto para gerar hierarquias. Em Java, a biblioteca da Azure Key Vault, diferentemente da biblioteca em .NET, troca um hífen por um ponto nos nomes das chaves para gerar a hierarquia. Então, nos nossos exemplos, deveria ter uma chave chamada *Secrets-ConnectionString* no Key Vault para que ela fosse encontrada. Mas, as duas versões são disponibilizadas no ambiente Java, tanto a versão com o hífen, quanto a versão com o ponto. Essa diferença de padronização de nomenclatura deve ser levada em conta ao criar um Key Vault compartilhado entre dois projetos.
 
